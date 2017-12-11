@@ -1,0 +1,140 @@
+<title>Clipboard Manager</title>
+<HTA:APPLICATION 
+     APPLICATIONNAME="Clipboard Manager"
+     SCROLL="no"
+     SINGLEINSTANCE="yes"
+     WINDOWSTATE="normal"
+	
+<HEAD>
+
+</HEAD>	
+<SCRIPT language="VBScript">
+	
+	Dim DCopy(10), varArray, Pause, Space, Mark, Lock(10), arrayload, maxline
+
+	
+Sub Window_Onload
+	upbutton.value = ChrW(8657)
+	downbutton.value = ChrW(8659)
+	maxline = 5
+	varArray = 5
+	Space = 5
+	For x = 1 to 10
+		Lock(x) = "False"
+		DCopy(x) = ""
+	Next
+	createList
+	strTimer = window.setInterval("DUpdate" , 100)
+	window.resizeTo 325,600
+	setline.InnerHTML = "Current lines: " & maxline
+	Pause = "False"
+End Sub 
+
+Sub createList
+	arrayload = ""
+	For x = 1 to maxline
+		arrayload = arrayload & "<span id =data" & x & "></span><input value=" & CHR(34) & "C" & CHR(34) &  "type=" & CHR(34) & "button" & CHR(34) &  "id=" & CHR(34) & "Checkbox" & x & CHR(34) &  "onClick=" & CHR(34) & "Copy " & x & CHR(34) &  "style=" & CHR(34) & "Position:Relative;Left:10px" & CHR(34) & ">   "
+		arrayload = arrayload & "<input type=" & CHR(34) & "button" & CHR(34) & "value=" & CHR(34) & "L" & CHR(34) & "id=" & CHR(34) & "lock_button" & x & CHR(34) & "onClick="  & CHR(34) & "LockScript " & x & CHR(34) & "style=" & CHR(34) & "Position:Relative;Left:10px" & CHR(34) & "><P>"
+		ManagerList.InnerHTML = arrayload
+	Next
+End Sub
+
+Sub Clear
+	Pause = "True"
+	For x = 1 to 10
+		If Lock(x) = "False" Then
+			DCopy(x) = ""
+			If document.getElementById("data" & x) Is Nothing Then
+				Else
+				document.getElementById("data" & x).innerHTML = DCopy(x)
+			End If
+		Else
+			If document.getElementById("data" & x) Is Nothing Then
+				Else
+				document.getElementById("lock_button" & x).value = "U"
+				document.getElementById("data" & x).innerHTML = "[" & DCopy(x) & "]"
+			End If
+		End If
+	Next
+	varArray = maxline
+	Space = maxline
+	Pause = "False"
+End Sub
+
+Sub DUpdate
+If Pause = "False" Then
+	If DCopy(varArray) <> clipboardData.getData("Text") Then
+		For x = 1 to maxline
+			Space = Space + 1
+				If Space = maxline+1 Then
+					Space = 1
+				End If
+			If Lock(Space) = "False" Then
+				varArray = Space
+				DCopy(varArray) = clipboardData.getData("Text")
+				document.getElementById("data" & varArray).innerHTML = DCopy(varArray)	
+				Exit for
+			End If
+		Next
+	End If
+End If	
+Mark = "Current: " & DCopy(varArray)
+dataMark.InnerHTML = Mark
+End Sub
+
+Function LockScript (y)
+	If DCopy(y) <> "" Then
+	Pause = "True"
+	If Lock(y) = "True" Then
+		Lock(y) = "False"
+		document.getElementById("lock_button" & y).value = "L"
+		document.getElementById("data" & y).innerHTML = DCopy(y)
+	Else
+		Lock(y) = "True"
+		document.getElementById("lock_button" & y).value = "U"
+		document.getElementById("data" & y).innerHTML = "[" & DCopy(y) & "]"
+	End If
+	Pause = "False"
+	End If
+End Function
+
+Function Copy (y)
+	Pause = "True"
+	varArray = y
+	clipboardData.setData "text",DCopy(varArray)
+	Pause = "False"
+End Function
+
+Sub uplist
+	Pause = "True"
+	If maxline < 10 Then
+		maxline = maxline + 1
+		createList
+		Clear
+		setline.InnerHTML = "Current lines: " & maxline
+	End If
+	Pause = "False"
+End Sub
+
+Sub downlist
+	Pause = "True"
+	If maxline > 2 Then
+		maxline = maxline - 1
+		createList
+		Clear
+		setline.InnerHTML = "Current lines: " & maxline
+	End If
+	Pause = "False"
+End Sub
+
+</SCRIPT>
+
+<body style="background.color:papayawhip">
+	<Div id = "ManagerList">
+	</Div>
+	<input type="button" value="Clear Copies" name="clear_button"  onClick="Clear"><p>
+	<span id = "dataMark"></span>
+	<span id = "setline" style="Position:Absolute;Top:125px;Right:35px"></span>
+	<input type="button" value="^" name="upbutton" onClick="uplist" style="Position:Absolute;Top:100px;Right:30px">
+	<input type="button" value="v" name="downbutton" onClick="downlist" style="Position:Absolute;Top:150px;Right:30px">
+</body>
