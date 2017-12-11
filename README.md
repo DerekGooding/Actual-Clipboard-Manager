@@ -1,3 +1,3 @@
 # Actual-Clipboard-Manager
 
-# This is a something I created as an HTA
+Saves old clipboard strings for later recovery and use. Similar to office but without needed to have them open. Runs in HTML>VBS in an HTA file. 
